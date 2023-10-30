@@ -1,0 +1,118 @@
+---
+title: "Predictive Loan"
+output: html_document
+date: "2023-10-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Libraries
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(stringr)
+```
+
+## Call in DataFrame
+
+```{r}
+df_overview <- read_csv('~/Documents/GitHub/tableau_Fri_project/loan_shark.csv')
+df_overview
+```
+
+## Change DataFrame into Tibble
+
+```{r}
+tibble_overview <- as_tibble(df_overview)
+View(df_overview)
+```
+
+## Cleaning DataFrame
+
+```{r}
+#cleaning column names
+
+rename_cols <- function(df_overview) {
+  #retrieve the column names using names(x)
+  names(df_overview) <- names(df_overview) %>% str_replace_all('\\.', '')%>% tolower()
+  return(df_overview)
+}
+
+df_overview <- rename_cols(df_overview)
+view(df_overview)
+```
+
+```{r}
+#adding '_' to some column names
+colnames(df_overview)[1] ="num"
+colnames(df_overview)[8] ="applicant_income"
+colnames(df_overview)[9] ="co_applicant_income"
+colnames(df_overview)[10] ="loan_amount"
+
+view(df_overview)
+```
+
+```{r}
+# dropping column
+
+df_overview2 = select(df_overview, -1,-7)
+#df_overview2 = select(df_overview, -)
+
+view(df_overview2)
+```
+
+### Converting to CSV file for further cleaning in Python
+
+```{r}
+#converting to CSV file for further cleaning in Python
+write.csv(df_overview2,file='loandata_version2.csv',na='')
+```
+
+## Calling in csv cleaned in python
+
+```{r}
+df_overview3 <- read_csv('~/Documents/GitHub/Capstone1_Data_Insights_for_Loan_DEI/new_clean_loan.csv')
+df_overview3
+```
+
+## Further cleaning
+
+```{r}
+#dropping columns
+df_overview4 <- df_overview3[-c(1,2)]
+view(df_overview4)
+```
+
+## Exporting completed clean file
+
+```{r}
+write.csv(df_overview4,file='loandata_finalversion.csv')
+```
+
+## Visulization
+
+```{r}
+ggplot(df_overview4) +
+  geom_point(aes(x = gender, y = loan_amount)) +
+  labs(title = "Comparison of gender and loan_amount", x = "Gender", y = "Loan_amount")
+```
+
+```{r}
+ggplot(df_overview4) +
+  geom_point(aes(x = dependents, y = loan_amount)) +
+  labs(title = "Comparison of dependents and loan_amount", x = "dependents", y = "Loan_amount")
+```
+
+# Statistical Testing
+
+```{r}
+
+t.test(df_overview4['dependents'], df_overview4['loan_amount'])
+```
+
+## Interpretation:
+
+The p-value \< 2.2e-16, is scientific notation for the equivalent of p \< .00000000000000016. Therefore, we can conclude conclude that there is a significant (positive) relationship between dependents, and loan amount dispersion.
