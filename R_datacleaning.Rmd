@@ -116,3 +116,71 @@ t.test(df_overview4['dependents'], df_overview4['loan_amount'])
 ## Interpretation:
 
 The p-value \< 2.2e-16, is scientific notation for the equivalent of p \< .00000000000000016. Therefore, we can conclude conclude that there is a significant (positive) relationship between dependents, and loan amount dispersion.
+
+```{r}
+#drop na's
+df_overview_NA <- na.omit(df_overview)
+summary(df_overview_NA)
+```
+
+```{r}
+# Read the dataset and convert the target variable to a factor
+df_overview_NA$gender = as.factor(df_overview_NA$gender)
+
+#Plot gender against the target variable
+ggplot(df_overview_NA, aes(gender, fill = loan_amount)) +
+    geom_bar() +
+    coord_flip()
+```
+
+```{r}
+#install model package
+install.packages("tidymodels")
+
+```
+
+```{r}
+library(tidymodels)
+?tidymodels
+```
+
+```{r}
+# Split data into train and test
+set.seed(421)
+split <- initial_split(df_overview_NA, prop = 0.8, strata = gender)
+train <- split %>% 
+         training()
+test <- split %>% 
+        testing()
+```
+
+```{r}
+install.packages("glmnet")
+library(glmnet)
+```
+
+```{r}
+# Train a logistic regression model
+model <- logistic_reg(mixture = double(1), penalty = double(1)) %>%
+  set_engine("glmnet") %>%
+  set_mode("classification") %>%
+  fit(gender ~ ., data = train)
+
+# Model summary
+tidy(model)
+```
+
+### Estimate column represents coefficients of the predictor:
+
+```         
+The coefficient value represents the mean change in the response given a one-unit increase in the predictor
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+```
